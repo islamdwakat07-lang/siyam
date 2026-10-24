@@ -1,0 +1,445 @@
+<!doctype html>
+<html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#1f5a52">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}</style>
+<title>صيام متقطع</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Alexandria:wght@500;700;800&family=IBM+Plex+Sans+Arabic:wght@400;500;600&display=swap">
+<style>
+/* Layout: one narrow column like a phone app — big dawn-to-dusk ring on top, then stages, water, history */
+:root{
+  --bg:#eef1ec; --surface:#ffffff; --ink:#18322f; --muted:#5f7470; --line:#d6dfda;
+  --accent:#d98a1e; --accent-ink:#ffffff; --deep:#1f5a52; --track:#dbe5e0;
+  --good:#2f8a5b; --soft:#f6e6cc;
+  --f-display:"Alexandria","IBM Plex Sans Arabic",Tahoma,sans-serif;
+  --f-body:"IBM Plex Sans Arabic",Tahoma,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f1c1f; --surface:#162a2d; --ink:#e7efe9; --muted:#9db1ab; --line:#26403f;
+  --accent:#f0a540; --accent-ink:#1b1305; --deep:#6cc3b2; --track:#22393a;
+  --good:#5ec48d; --soft:#3a2c14; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f1c1f; --surface:#162a2d; --ink:#e7efe9; --muted:#9db1ab; --line:#26403f;
+  --accent:#f0a540; --accent-ink:#1b1305; --deep:#6cc3b2; --track:#22393a;
+  --good:#5ec48d; --soft:#3a2c14; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px}
+.app{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+h1,h2{font-family:var(--f-display);margin:0;text-wrap:balance}
+h1{font-size:1.6rem;font-weight:800}
+h2{font-size:1.05rem;font-weight:700}
+.top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.top small{color:var(--muted)}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px}
+.plans{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:thin}
+.plan{flex:0 0 auto;border:1.5px solid var(--line);background:transparent;color:var(--ink);border-radius:12px;padding:8px 12px;font:inherit;cursor:pointer;text-align:center;min-width:76px}
+.plan b{display:block;font-family:var(--f-display);font-size:1.1rem;direction:ltr}
+.plan span{font-size:.75rem;color:var(--muted)}
+.plan[aria-pressed="true"]{border-color:var(--deep);background:var(--deep);color:var(--surface)}
+.plan[aria-pressed="true"] span{color:inherit;opacity:.85}
+.plan:disabled{opacity:.45;cursor:not-allowed}
+.ringwrap{position:relative;width:min(300px,100%);aspect-ratio:1;max-width:100%;margin:6px auto 0}
+.ringwrap svg{width:100%;height:100%;transform:rotate(-90deg) scaleY(-1)}
+.center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:2px}
+.center .lbl{font-size:.8rem;color:var(--muted);letter-spacing:.02em}
+.center .time{font-family:var(--f-display);font-size:2.6rem;font-weight:700;direction:ltr;font-variant-numeric:tabular-nums;line-height:1.1}
+.center .pct{font-size:.85rem;color:var(--deep);font-weight:600}
+.times{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.times div{border-top:1px solid var(--line);padding-top:8px}
+.times span{display:block;font-size:.75rem;color:var(--muted)}
+.times b{font-family:var(--f-display);font-weight:500;font-variant-numeric:tabular-nums}
+.btn{width:100%;border:0;border-radius:14px;padding:14px;font:600 1.05rem var(--f-display);cursor:pointer;margin-top:14px;background:var(--accent);color:var(--accent-ink)}
+.btn.stop{background:var(--deep);color:var(--surface)}
+.btn:focus-visible,.plan:focus-visible,.link:focus-visible,.cup:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+.link{background:none;border:0;color:var(--deep);font:inherit;font-size:.85rem;cursor:pointer;text-decoration:underline;padding:4px 0}
+.edit{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.edit input{font:inherit;padding:6px 8px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.stages{list-style:none;margin:12px 0 0;padding:0;display:flex;flex-direction:column}
+.stage{display:grid;grid-template-columns:44px 1fr;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
+.stage:first-child{border-top:0}
+.stage .h{font-family:var(--f-display);font-weight:700;color:var(--muted);direction:ltr;text-align:center;font-size:.9rem;padding-top:2px}
+.stage b{display:block;font-weight:600}
+.stage p{margin:0;color:var(--muted);font-size:.85rem}
+.stage.done .h{color:var(--good)}
+.stage.now{background:var(--soft);border-radius:12px;border-top-color:transparent;padding-inline:8px;margin-inline:-8px}
+.stage.now .h{color:var(--accent)}
+.chip{display:inline-block;font-size:.7rem;padding:1px 8px;border-radius:99px;background:var(--accent);color:var(--accent-ink);margin-inline-start:6px;vertical-align:middle}
+.water{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.cup{width:34px;height:42px;border:2px solid var(--deep);border-top-width:1px;border-radius:4px 4px 10px 10px;background:transparent;cursor:pointer;position:relative;overflow:hidden;padding:0}
+.cup.full::after{content:"";position:absolute;inset:30% 0 0;background:var(--deep);opacity:.75}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px;text-align:center}
+.stats b{display:block;font-family:var(--f-display);font-size:1.4rem;font-variant-numeric:tabular-nums}
+.stats span{font-size:.75rem;color:var(--muted)}
+.bars{display:flex;align-items:flex-end;gap:6px;height:110px;margin-top:16px;border-bottom:1px solid var(--line);position:relative}
+.bars .goal{position:absolute;inset-inline:0;border-top:1.5px dashed var(--accent);font-size:.65rem;color:var(--accent)}
+.bar{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;gap:2px}
+.bar i{display:block;width:100%;max-width:26px;border-radius:6px 6px 2px 2px;background:var(--track)}
+.bar i.ok{background:var(--good)}
+.bar small{font-size:.65rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.days{display:flex;gap:6px;margin-top:4px}
+.days span{flex:1;text-align:center;font-size:.65rem;color:var(--muted)}
+.log{list-style:none;padding:0;margin:12px 0 0}
+.log li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-top:1px solid var(--line);font-size:.9rem}
+.log li span{color:var(--muted);font-variant-numeric:tabular-nums}
+.ex{font-size:.75rem;color:var(--accent);margin-top:6px}
+.note{font-size:.8rem;color:var(--muted);text-align:center;max-width:60ch;margin:0 auto}
+.confirm{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+.confirm button{flex:1;margin-top:0;padding:10px;font-size:.95rem}
+.ghost{background:transparent!important;color:var(--ink)!important;border:1px solid var(--line)!important}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.fields label{display:flex;flex-direction:column;gap:4px;font-size:.8rem;color:var(--muted);min-width:0}
+.fields label.wide{grid-column:1/-1}
+.fields input,.fields select{font:inherit;font-size:1rem;color:var(--ink);padding:10px;border-radius:10px;border:1px solid var(--line);background:var(--bg);width:100%;min-width:0}
+.fields input{direction:ltr;text-align:right}
+.fields input:focus-visible,.fields select:focus-visible{outline:3px solid var(--accent);outline-offset:1px}
+.msg{font-size:.85rem;color:var(--deep);margin:10px 0 0;min-height:1.3em}
+.empty{color:var(--muted);font-size:.9rem;margin:14px 0 0}
+.kpis{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}
+.kpi{border-top:1px solid var(--line);padding-top:8px;min-width:0}
+.kpi small{display:block;font-size:.75rem;color:var(--muted)}
+.kpi b{font-family:var(--f-display);font-size:1.15rem;font-weight:700;overflow-wrap:anywhere}
+.kpi em{font-style:normal;font-size:.78rem;color:var(--muted);display:block}
+.tag{display:inline-block;font-size:.7rem;padding:1px 8px;border-radius:99px;margin-inline-start:6px;background:var(--track);color:var(--ink);vertical-align:middle}
+.tag.ok{background:var(--good);color:var(--surface)}
+.tag.warn{background:var(--accent);color:var(--accent-ink)}
+.prog{height:12px;border-radius:99px;background:var(--track);overflow:hidden;margin-top:16px}
+.prog i{display:block;height:100%;background:var(--good);border-radius:99px}
+.progl{display:flex;justify-content:space-between;gap:8px;font-size:.75rem;color:var(--muted);margin-top:4px}
+.chart{width:100%;height:auto;margin-top:14px;display:block;direction:ltr}
+.chart text{font-family:var(--f-body);fill:var(--muted);font-size:9px}
+.tiny{font-size:.75rem;color:var(--muted);margin:12px 0 0}
+@media (prefers-reduced-motion:no-preference){#arc{transition:stroke-dashoffset .6s ease}}
+</style>
+
+</head><body>
+<div class="app" dir="rtl" lang="ar">
+  <header class="top">
+    <h1>صيام متقطع</h1>
+    <small id="today"></small>
+  </header>
+
+  <section class="panel" aria-label="المؤقت">
+    <div class="row"><h2>نظام الصيام</h2><button class="link" id="customBtn">نظام مخصص</button></div>
+    <div class="plans" id="plans" role="group" aria-label="اختر نظام الصيام" style="margin-top:10px"></div>
+    <div class="edit" id="customBox" hidden>
+      <label for="customH">ساعات الصيام</label>
+      <input id="customH" type="number" min="10" max="72" value="17" style="width:80px">
+      <button class="link" id="customOk">اعتماد</button>
+    </div>
+
+    <div class="ringwrap">
+      <svg viewBox="0 0 200 200" aria-hidden="true">
+        <circle cx="100" cy="100" r="88" fill="none" stroke="var(--track)" stroke-width="14"/>
+        <circle id="arc" cx="100" cy="100" r="88" fill="none" stroke="var(--accent)" stroke-width="14" stroke-linecap="round" stroke-dasharray="552.92" stroke-dashoffset="552.92"/>
+        <g id="ticks"></g>
+      </svg>
+      <div class="center">
+        <span class="lbl" id="cLabel">جاهز للبدء</span>
+        <span class="time" id="cTime">16:00:00</span>
+        <span class="pct" id="cPct">مدة الصيام</span>
+      </div>
+    </div>
+
+    <div class="times">
+      <div><span id="t1l">يبدأ الصيام</span><b id="t1">—</b></div>
+      <div><span id="t2l">ينتهي الصيام</span><b id="t2">—</b></div>
+    </div>
+
+    <button class="btn" id="mainBtn">ابدأ الصيام الآن</button>
+    <div class="confirm" id="confirmBox" hidden>
+      <button class="btn stop" id="yesEnd">نعم، أنهِ الصيام</button>
+      <button class="btn ghost" id="noEnd">أكمل الصيام</button>
+    </div>
+    <div class="edit" id="editBox" hidden>
+      <label for="startEdit">وقت بداية الصيام:</label>
+      <input type="datetime-local" id="startEdit">
+      <button class="link" id="saveStart">حفظ</button>
+    </div>
+    <button class="link" id="editStartBtn" hidden>تعديل وقت البداية</button>
+  </section>
+
+  <section class="panel" aria-label="مراحل الجسم">
+    <h2>ماذا يحدث في جسمك</h2>
+    <ol class="stages" id="stages"></ol>
+  </section>
+
+  <section class="panel" aria-label="جسمي وهدفي">
+    <h2>جسمي وهدفي</h2>
+    <div class="fields">
+      <label for="fHeight">الطول (سم)<input id="fHeight" type="number" inputmode="decimal" min="100" max="230" placeholder="مثلاً 175"></label>
+      <label for="fGender">الجنس<select id="fGender"><option value="m">ذكر</option><option value="f">أنثى</option></select></label>
+      <label for="fWeight">وزني الآن (كغ)<input id="fWeight" type="number" inputmode="decimal" min="30" max="300" step="0.1" placeholder="مثلاً 92"></label>
+      <label for="fWaist">محيط البطن (سم)<input id="fWaist" type="number" inputmode="decimal" min="40" max="200" step="0.5" placeholder="مثلاً 105"></label>
+      <label class="wide" for="fTarget">الوزن المثالي الذي أريد الوصول إليه (كغ)<input id="fTarget" type="number" inputmode="decimal" min="30" max="300" step="0.1" placeholder="اتركه فارغاً ليُحسب لك"></label>
+    </div>
+    <button class="link" id="suggBtn" type="button">اقترح لي الوزن المثالي حسب طولي</button>
+    <button class="btn" id="saveBody" type="button">حفظ القياسات</button>
+    <p class="msg" id="bodyMsg" role="status"></p>
+    <div id="bodyOut"></div>
+    <div id="bodyChart"></div>
+    <ul class="log" id="bodyLog"></ul>
+    <p class="tiny">قس محيط البطن عند مستوى السرّة بعد الزفير، بشريط قياس غير مشدود. هذه المؤشرات تقريبية ولا تغني عن رأي الطبيب.</p>
+  </section>
+
+  <section class="panel" aria-label="الماء">
+    <div class="row"><h2>الماء اليوم</h2><span id="waterTxt" style="color:var(--muted);font-size:.9rem"></span></div>
+    <div class="water" id="water"></div>
+  </section>
+
+  <section class="panel" aria-label="السجل">
+    <div class="row"><h2>آخر 7 صيامات</h2><button class="link" id="clearBtn">مسح السجل</button></div>
+    <div class="stats">
+      <div><b id="sStreak">0</b><span>أيام متتالية</span></div>
+      <div><b id="sAvg">0</b><span>متوسط الساعات</span></div>
+      <div><b id="sBest">0</b><span>أطول صيام</span></div>
+    </div>
+    <div class="bars" id="bars"></div>
+    <div class="days" id="days"></div>
+    <p class="ex" id="exNote" hidden>هذه بيانات تجريبية للتوضيح، ستُستبدل بصيامك الحقيقي بعد أول صيام. اضغط «مسح السجل» لحذفها.</p>
+    <div class="confirm" id="clearConfirm" hidden>
+      <button class="btn stop" id="yesClear">نعم، امسح</button>
+      <button class="btn ghost" id="noClear">إلغاء</button>
+    </div>
+    <ul class="log" id="log"></ul>
+  </section>
+
+  <p class="note">مسموح أثناء الصيام: الماء، القهوة والشاي بدون سكر أو حليب. لا يُنصح بالصيام المتقطع للحامل والمرضع ومرضى السكري ومن يتناول أدوية منتظمة إلا بعد استشارة الطبيب.</p>
+</div>
+
+<script>
+(function(){
+const PLANS=[
+  {h:14,n:"مبتدئ"},{h:16,n:"الأشهر"},{h:18,n:"متقدم"},{h:20,n:"محارب"},{h:23,n:"وجبة واحدة"}
+];
+const STAGES=[
+  {h:0,t:"هضم آخر وجبة",d:"الجسم يستخدم الطاقة من الطعام الذي أكلته، ويرتفع الإنسولين."},
+  {h:4,t:"انخفاض سكر الدم",d:"يبدأ مستوى السكر والإنسولين بالنزول تدريجياً."},
+  {h:8,t:"استهلاك مخزون السكر",d:"الكبد يستعمل مخزون الجلايكوجين ليحافظ على طاقتك."},
+  {h:12,t:"بداية حرق الدهون",d:"مع نفاد المخزون يتحول الجسم أكثر إلى حرق الدهون."},
+  {h:16,t:"الكيتوزية الخفيفة",d:"ترتفع الكيتونات، ويقل الشعور بالجوع عند كثير من الناس."},
+  {h:18,t:"حرق دهون أقوى",d:"الاعتماد على الدهون كمصدر للطاقة يزداد بوضوح."},
+  {h:24,t:"تنظيف الخلايا",d:"تزداد عملية الالتهام الذاتي التي تجدد فيها الخلايا مكوناتها."}
+];
+const KEY="siyam-v1";
+const $=id=>document.getElementById(id);
+const pad=n=>String(n).padStart(2,"0");
+const H=3600000;
+
+function load(){try{const s=JSON.parse(localStorage.getItem(KEY));if(s)return s}catch(e){}return null}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+
+function sample(){
+  const out=[],now=new Date();const hrs=[16.4,15.2,17.1,16.0,18.3,14.6,16.8];
+  for(let i=7;i>=1;i--){const d=new Date(now);d.setDate(d.getDate()-i);d.setHours(20,30,0,0);
+    out.push({start:d.getTime(),end:d.getTime()+hrs[7-i]*H,goal:16,ex:true})}
+  return out;
+}
+let S=load()||{goal:16,start:null,history:sample(),water:{day:"",n:0}};
+if(!S.body)S.body={h:0,g:"m",target:0,entries:[]};
+
+const fmtT=t=>{const d=new Date(t);return d.toLocaleDateString("ar",{weekday:"short"})+" "+pad(d.getHours())+":"+pad(d.getMinutes())};
+const fmtDur=ms=>{ms=Math.max(0,ms);const s=Math.floor(ms/1000);return pad(Math.floor(s/3600))+":"+pad(Math.floor(s%3600/60))+":"+pad(s%60)};
+const dayKey=t=>{const d=new Date(t);return d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate()};
+
+$("today").textContent=new Date().toLocaleDateString("ar",{weekday:"long",day:"numeric",month:"long"});
+
+function renderPlans(){
+  const box=$("plans");box.innerHTML="";
+  const list=PLANS.slice();if(!list.some(p=>p.h===S.goal))list.push({h:S.goal,n:"مخصص"});
+  list.forEach(p=>{const b=document.createElement("button");b.className="plan";b.type="button";
+    b.setAttribute("aria-pressed",p.h===S.goal);b.disabled=!!S.start&&p.h!==S.goal;
+    b.innerHTML="<b>"+p.h+":"+(24-p.h>0?24-p.h:0)+"</b><span>"+p.n+"</span>";
+    b.onclick=()=>{S.goal=p.h;save();renderAll()};box.appendChild(b)});
+}
+function renderTicks(){
+  const g=$("ticks");g.innerHTML="";
+  STAGES.forEach(s=>{if(s.h===0||s.h>S.goal)return;const a=s.h/S.goal*2*Math.PI;
+    const x=100+88*Math.cos(a),y=100+88*Math.sin(a);
+    g.insertAdjacentHTML("beforeend",'<circle cx="'+x+'" cy="'+y+'" r="3.2" fill="var(--surface)"/>')});
+}
+function tick(){
+  const now=Date.now(),goalMs=S.goal*H,C=552.92;
+  if(S.start){
+    const el=now-S.start,p=Math.min(1,el/goalMs),left=goalMs-el;
+    $("arc").style.strokeDashoffset=C*(1-p);
+    $("arc").setAttribute("stroke",p>=1?"var(--good)":"var(--accent)");
+    $("cLabel").textContent=left>0?"مضى من صيامك":"أتممت هدفك! تجاوزت بـ";
+    $("cTime").textContent=left>0?fmtDur(el):fmtDur(-left);
+    $("cPct").textContent=left>0?Math.floor(p*100)+"% · باقي "+fmtDur(left).slice(0,5):"مجموع "+fmtDur(el).slice(0,5)+" ساعة";
+    $("t1").textContent=fmtT(S.start);$("t2").textContent=fmtT(S.start+goalMs);
+    $("t1l").textContent="بدأ الصيام";$("t2l").textContent="موعد الإفطار";
+    renderStages(el/H);
+  }else{
+    $("arc").style.strokeDashoffset=C;
+    $("cLabel").textContent="فترة الأكل";$("cTime").textContent=pad(S.goal)+":00:00";
+    $("cPct").textContent="مدة الصيام المستهدفة";
+    $("t1").textContent=fmtT(now);$("t2").textContent=fmtT(now+goalMs);
+    $("t1l").textContent="لو بدأت الآن";$("t2l").textContent="تفطر في";
+    renderStages(-1);
+  }
+}
+let lastStage=null;
+function renderStages(h){
+  let cur=-1;STAGES.forEach((s,i)=>{if(h>=s.h)cur=i});
+  if(cur===lastStage&&$("stages").children.length)return;lastStage=cur;
+  $("stages").innerHTML=STAGES.map((s,i)=>'<li class="stage '+(i<cur?"done":i===cur?"now":"")+'"><div class="h">'+s.h+'h</div><div><b>'+s.t+(i===cur?'<span class="chip">أنت هنا</span>':"")+'</b><p>'+s.d+'</p></div></li>').join("");
+}
+function renderMain(){
+  const b=$("mainBtn");
+  b.textContent=S.start?"إنهاء الصيام":"ابدأ الصيام الآن";b.className="btn"+(S.start?" stop":"");
+  b.hidden=false;$("confirmBox").hidden=true;
+  $("editStartBtn").hidden=!S.start;$("editBox").hidden=true;
+}
+function renderWater(){
+  const k=dayKey(Date.now());if(S.water.day!==k)S.water={day:k,n:0};
+  const box=$("water");box.innerHTML="";
+  for(let i=0;i<8;i++){const c=document.createElement("button");c.className="cup"+(i<S.water.n?" full":"");c.type="button";
+    c.setAttribute("aria-label","كوب "+(i+1));c.onclick=()=>{S.water.n=(i<S.water.n&&i===S.water.n-1)?i:i+1;save();renderWater()};box.appendChild(c)}
+  $("waterTxt").textContent=S.water.n+" من 8 أكواب";
+}
+function renderHistory(){
+  const h=S.history.slice(-7),hrs=h.map(x=>(x.end-x.start)/H);
+  $("exNote").hidden=!h.some(x=>x.ex);
+  const all=S.history.map(x=>(x.end-x.start)/H);
+  $("sAvg").textContent=all.length?(all.reduce((a,b)=>a+b,0)/all.length).toFixed(1):0;
+  $("sBest").textContent=all.length?Math.max(...all).toFixed(1):0;
+  // streak: consecutive days back from latest with a fast meeting goal
+  let streak=0;const done=new Set(S.history.filter(x=>(x.end-x.start)/H>=x.goal-0.01).map(x=>dayKey(x.end)));
+  const d=new Date();if(!done.has(dayKey(d)))d.setDate(d.getDate()-1);
+  while(done.has(dayKey(d))){streak++;d.setDate(d.getDate()-1)}
+  $("sStreak").textContent=streak;
+  const max=Math.max(24,...hrs,S.goal);
+  $("bars").innerHTML='<div class="goal" style="bottom:'+(S.goal/max*100)+'%">الهدف '+S.goal+'</div>'+
+    h.map((x,i)=>'<div class="bar"><small>'+hrs[i].toFixed(1)+'</small><i class="'+(hrs[i]>=x.goal-0.01?"ok":"")+'" style="height:'+(hrs[i]/max*100*0.82)+'%"></i></div>').join("");
+  $("days").innerHTML=h.map(x=>'<span>'+new Date(x.end).toLocaleDateString("ar",{weekday:"short"})+'</span>').join("");
+  $("log").innerHTML=h.slice().reverse().map((x,i)=>{const v=(x.end-x.start)/H;
+    return '<li><b>'+(v>=x.goal-0.01?"✓ ":"")+v.toFixed(1)+' ساعة <span>من '+x.goal+'</span></b><span>'+fmtT(x.start)+' ← '+fmtT(x.end)+'</span></li>'}).join("")||'<li><span>لا يوجد صيام مسجّل بعد. ابدأ أول صيام من الأعلى.</span></li>';
+}
+function renderAll(){renderPlans();renderTicks();renderMain();renderWater();renderHistory();renderBody();lastStage=null;tick()}
+
+const num=v=>{const x=parseFloat(String(v).replace(",","."));return isFinite(x)?x:0};
+const f1=x=>String(Math.round(x*10)/10);
+const dShort=t=>new Date(t).toLocaleDateString("ar",{day:"numeric",month:"short"});
+function fillForm(){
+  const B=S.body,ws=B.entries.filter(e=>e.w>0),wl=B.entries.filter(e=>e.waist>0);
+  $("fHeight").value=B.h||"";$("fGender").value=B.g||"m";$("fTarget").value=B.target||"";
+  $("fWeight").value=ws.length?ws[ws.length-1].w:"";$("fWaist").value=wl.length?wl[wl.length-1].waist:"";
+}
+function bodyChart(ws,tgt){
+  if(ws.length<2)return "";
+  const W=300,Hh=130,pl=12,pr=12,pt=20,pb=24;
+  const vals=ws.map(e=>e.w).concat(tgt?[tgt]:[]);
+  let mn=Math.min(...vals),mx=Math.max(...vals);if(mx-mn<2){mx+=1;mn-=1}
+  const X=i=>pl+(W-pl-pr)*i/(ws.length-1),Y=v=>pt+(Hh-pt-pb)*(1-(v-mn)/(mx-mn));
+  const pts=ws.map((e,i)=>X(i).toFixed(1)+","+Y(e.w).toFixed(1)).join(" ");
+  const li=ws.length-1;
+  let s='<svg class="chart" viewBox="0 0 '+W+' '+Hh+'" role="img" aria-label="تغيّر الوزن مع الوقت">';
+  if(tgt)s+='<line x1="'+pl+'" x2="'+(W-pr)+'" y1="'+Y(tgt)+'" y2="'+Y(tgt)+'" stroke="var(--good)" stroke-width="1.5" stroke-dasharray="4 3"/><text x="'+(W-pr)+'" y="'+(Y(tgt)+11)+'" text-anchor="end">الهدف '+f1(tgt)+'</text>';
+  s+='<polyline points="'+pts+'" fill="none" stroke="var(--deep)" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+  ws.forEach((e,i)=>{s+='<circle cx="'+X(i)+'" cy="'+Y(e.w)+'" r="'+(i===li?4.5:3)+'" fill="'+(i===li?"var(--accent)":"var(--deep)")+'"/>'});
+  s+='<text x="'+X(0)+'" y="'+(Y(ws[0].w)-8)+'" text-anchor="start">'+f1(ws[0].w)+'</text>';
+  s+='<text x="'+X(li)+'" y="'+(Y(ws[li].w)-8)+'" text-anchor="end">'+f1(ws[li].w)+'</text>';
+  s+='<text x="'+pl+'" y="'+(Hh-6)+'" text-anchor="start">'+dShort(ws[0].t)+'</text><text x="'+(W-pr)+'" y="'+(Hh-6)+'" text-anchor="end">'+dShort(ws[li].t)+'</text></svg>';
+  return s;
+}
+function renderBody(){
+  const B=S.body,ws=B.entries.filter(e=>e.w>0),wl=B.entries.filter(e=>e.waist>0);
+  const w=ws.length?ws[ws.length-1].w:0,wa=wl.length?wl[wl.length-1].waist:0;
+  const h=B.h,m=h/100,k=[];let tgt=0,html="";
+  if(h){
+    const ideal=22*m*m;tgt=B.target||ideal;
+    k.push({l:"الوزن المثالي لطولك",v:Math.round(18.5*m*m)+" – "+Math.round(24.9*m*m)+" كغ",e:"الأنسب لك تقريباً "+f1(ideal)+" كغ"});
+    if(w){
+      const bmi=w/(m*m);
+      const c=bmi<18.5?["نحافة","warn"]:bmi<25?["طبيعي","ok"]:bmi<30?["زيادة وزن","warn"]:["سمنة","warn"];
+      k.push({l:"مؤشر كتلة الجسم",v:bmi.toFixed(1),tag:c[0],cls:c[1],e:"وزنك الآن "+f1(w)+" كغ"});
+      const d=w-tgt;
+      k.push({l:"الهدف "+f1(tgt)+" كغ",v:d>0.05?"باقي "+f1(d)+" كغ":(d<-0.05?"أقل من الهدف":"وصلت للهدف"),e:B.target?"هدفك الذي حددته":"الوزن المثالي المقترح"});
+    }
+    if(wa){
+      const lim=B.g==="f"?[80,88]:[94,102];
+      const c=wa<lim[0]?["سليم","ok"]:wa<lim[1]?["زيادة","warn"]:["مرتفع","warn"];
+      k.push({l:"محيط البطن",v:f1(wa)+" سم",tag:c[0],cls:c[1],e:wa>h/2?"باقي "+f1(wa-h/2)+" سم للوصول لنصف طولك":"أقل من نصف طولك"});
+    }
+    k.push({l:"محيط البطن المثالي",v:"أقل من "+f1(h/2)+" سم",e:"نصف طولك تقريباً"});
+  }
+  const chg=(a,u)=>{const d=a;return Math.abs(d)<0.05?"ثابت":(d<0?"نزل ":"زاد ")+f1(Math.abs(d))+" "+u};
+  if(ws.length>1)k.push({l:"تغيّر الوزن",v:chg(w-ws[0].w,"كغ"),e:"منذ "+dShort(ws[0].t)});
+  if(wl.length>1)k.push({l:"تغيّر محيط البطن",v:chg(wa-wl[0].waist,"سم"),e:"منذ "+dShort(wl[0].t)});
+  if(k.length){
+    html='<div class="kpis">'+k.map(x=>'<div class="kpi"><small>'+x.l+'</small><b>'+x.v+'</b>'+(x.tag?'<span class="tag '+x.cls+'">'+x.tag+'</span>':'')+(x.e?'<em>'+x.e+'</em>':'')+'</div>').join("")+'</div>';
+    if(h&&ws.length&&ws[0].w>tgt){
+      const st=ws[0].w,p=Math.max(0,Math.min(1,(st-w)/(st-tgt)));
+      html+='<div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.round(p*100)+'"><i style="width:'+(p*100)+'%"></i></div><div class="progl"><span>البداية '+f1(st)+' كغ</span><b>'+Math.round(p*100)+'%</b><span>الهدف '+f1(tgt)+' كغ</span></div>';
+    }
+  }else html='<p class="empty">أدخل طولك ووزنك ومحيط بطنك ثم اضغط «حفظ القياسات» لتظهر النتائج.</p>';
+  $("bodyOut").innerHTML=html;
+  $("bodyChart").innerHTML=bodyChart(ws,tgt);
+  $("bodyLog").innerHTML=B.entries.slice(-6).reverse().map(e=>'<li><b>'+(e.w?f1(e.w)+" كغ":"")+(e.w&&e.waist?" · ":"")+(e.waist?"بطن "+f1(e.waist)+" سم":"")+'</b><span>'+dShort(e.t)+'</span><button class="link" type="button" data-t="'+e.t+'">حذف</button></li>').join("");
+}
+function say(t){$("bodyMsg").textContent=t}
+$("suggBtn").onclick=()=>{
+  const h=num($("fHeight").value)||S.body.h;
+  if(!h||h<100||h>230){say("أدخل طولك بالسنتيمتر أولاً (بين 100 و230).");return}
+  const m=h/100;$("fTarget").value=f1(22*m*m);
+  say("الوزن المقترح "+f1(22*m*m)+" كغ، والمدى الصحي لطولك من "+Math.round(18.5*m*m)+" إلى "+Math.round(24.9*m*m)+" كغ. عدّله كما تريد ثم اضغط حفظ.");
+};
+$("saveBody").onclick=()=>{
+  const h=num($("fHeight").value),w=num($("fWeight").value),wa=num($("fWaist").value),t=num($("fTarget").value);
+  if(h&&(h<100||h>230)){say("الطول يجب أن يكون بين 100 و230 سم.");return}
+  if(w&&(w<30||w>300)){say("الوزن يجب أن يكون بين 30 و300 كغ.");return}
+  if(wa&&(wa<40||wa>200)){say("محيط البطن يجب أن يكون بين 40 و200 سم.");return}
+  if(t&&(t<30||t>300)){say("الوزن المثالي يجب أن يكون بين 30 و300 كغ.");return}
+  const B=S.body;B.h=h||B.h;B.g=$("fGender").value;B.target=t;
+  if(w||wa){
+    const last=B.entries[B.entries.length-1];
+    if(last&&dayKey(last.t)===dayKey(Date.now())){if(w)last.w=w;if(wa)last.waist=wa;last.t=Date.now()}
+    else B.entries.push({t:Date.now(),w:w||0,waist:wa||0});
+  }
+  save();renderBody();say(w||wa?"تم حفظ قياسات اليوم.":"تم حفظ الطول والهدف. أضف وزنك أو محيط بطنك لتبدأ المتابعة.");
+};
+$("fGender").onchange=()=>{S.body.g=$("fGender").value;save();renderBody()};
+$("bodyLog").onclick=ev=>{const b=ev.target.closest("button[data-t]");if(!b)return;
+  S.body.entries=S.body.entries.filter(e=>String(e.t)!==b.dataset.t);save();fillForm();renderBody()};
+
+// إشعارات الأندرويد (تعمل داخل التطبيق فقط)
+const LN=()=>{try{const C=window.Capacitor;return C&&C.isNativePlatform&&C.isNativePlatform()&&C.Plugins?C.Plugins.LocalNotifications:null}catch(e){return null}};
+async function notifSync(){
+  const ln=LN();if(!ln)return;
+  try{
+    await ln.cancel({notifications:[{id:1},{id:2}]});
+    if(!S.start)return;
+    let p=await ln.checkPermissions();
+    if(p.display!=="granted")p=await ln.requestPermissions();
+    if(p.display!=="granted")return;
+    const now=Date.now(),list=[];
+    const end=S.start+S.goal*H,fat=S.start+12*H;
+    if(end>now)list.push({id:1,title:"حان وقت الإفطار",body:"أتممت "+S.goal+" ساعة من الصيام. ما شاء الله!",schedule:{at:new Date(end),allowWhileIdle:true}});
+    if(S.goal>12&&fat>now)list.push({id:2,title:"بدأ حرق الدهون",body:"مضت 12 ساعة على صيامك. أكمل، وأنت تسير بشكل ممتاز.",schedule:{at:new Date(fat),allowWhileIdle:true}});
+    if(list.length)await ln.schedule({notifications:list});
+  }catch(e){}
+}
+
+$("mainBtn").onclick=()=>{
+  if(!S.start){S.start=Date.now();save();renderAll();notifSync()}
+  else{$("mainBtn").hidden=true;$("confirmBox").hidden=false}
+};
+$("noEnd").onclick=renderMain;
+$("yesEnd").onclick=()=>{
+  S.history=S.history.filter(x=>!x.ex);
+  S.history.push({start:S.start,end:Date.now(),goal:S.goal});S.start=null;save();renderAll();notifSync();
+};
+$("editStartBtn").onclick=()=>{const d=new Date(S.start);d.setMinutes(d.getMinutes()-d.getTimezoneOffset());
+  $("startEdit").value=d.toISOString().slice(0,16);$("editBox").hidden=false;$("editStartBtn").hidden=true};
+$("saveStart").onclick=()=>{const t=new Date($("startEdit").value).getTime();if(t&&t<=Date.now()){S.start=t;save();notifSync()}renderAll()};
+$("customBtn").onclick=()=>{$("customBox").hidden=!$("customBox").hidden};
+$("customOk").onclick=()=>{const v=Math.round(+$("customH").value);if(v>=10&&v<=72&&!S.start){S.goal=v;save()}$("customBox").hidden=true;renderAll()};
+$("clearBtn").onclick=()=>{$("clearConfirm").hidden=false};
+$("noClear").onclick=()=>{$("clearConfirm").hidden=true};
+$("yesClear").onclick=()=>{S.history=[];save();$("clearConfirm").hidden=true;renderHistory()};
+
+fillForm();renderAll();notifSync();setInterval(tick,1000);
+})();
+</script>
+</body></html>
